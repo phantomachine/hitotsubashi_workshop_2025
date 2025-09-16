@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.17.2
+      jupytext_version: 1.17.3
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -17,7 +17,7 @@ jupyter:
 #### [John Stachurski](https://johnstachurski.net/) 
 September 2025
 
-This notebook illustrates the power of [JAX](https://github.com/google/jax), a Python library built by Google Research.
+This is a super quick illustration of the power of [JAX](https://github.com/google/jax), a Python library built by Google Research.
 
 It should be run on a machine with a GPU --- for example, try Google Colab with the runtime environment set to include a GPU.
 
@@ -28,7 +28,6 @@ We start with some imports
 
 ```python
 import numpy as np
-import scipy
 import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
@@ -195,8 +194,3 @@ f_jax = jax.jit(f)
 ```python
 %time f_jax(x_jax).block_until_ready()
 ```
-
-## More
-
-
-
