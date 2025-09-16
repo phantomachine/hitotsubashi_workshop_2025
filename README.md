@@ -26,11 +26,11 @@ applications.
 
 ### Day 1 (Thursday 18/9/2025)
 
-1. [Fun with JAX](day_1/fun_with_jax.ipynb)
-2. [Job Search](day_1/job_search.ipynb)
-3. [Job Search with Separation](day_1/markov_js_with_sep.ipynb)
-4. [Introduction Slides](day_1/intro_slides/intro.pdf)
-5. [JAX Slides](day_1/jax_slides/jax.pdf)
+1. [Job Search](day_1/job_search.ipynb)
+2. [Job Search with Separation](day_1/markov_js_with_sep.ipynb)
+3. [Introduction Slides](day_1/intro_slides/intro.pdf)
+5. [Fun with JAX](day_1/fun_with_jax.ipynb)
+4. [JAX Slides](day_1/jax_slides/jax.pdf)
 6. [An Introduction to JAX](day_1/jax_intro.ipynb)
 7. [Autodiff](day_1/autodiff.ipynb)
 
