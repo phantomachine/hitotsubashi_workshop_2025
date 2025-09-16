@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.17.2
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -88,7 +88,7 @@ np.set_printoptions(precision=6, suppress=True)
 
 ```{code-cell} ipython3
 class Model(NamedTuple):
-    K: int = 20     # max inventory
+    K: int = 50     # max inventory
     p: float = 0.6  # demand shock parameter
 
 
@@ -105,7 +105,6 @@ def F(p, x):
 Let's create a model instance.
 
 ```{code-cell} ipython3
-
 model = Model()
 print(f"Created {model}")
 print(f"Demand PDF: ϕ(d) = (1-p)^d * p = (1-{model.p})^d * {model.p}")
@@ -170,8 +169,8 @@ def generate_kernel_vectorized(model):
     phi_values = valid_d * ϕ(p, d_candidate)
     
     # Second term: I{y = a} F(x)
-    indicator_y_eq_a = (y_grid == a_grid).astype(float)
-    f_values = F(p, x_grid) * indicator_y_eq_a
+    y_eq_a = jnp.equal(y_grid, a_grid)
+    f_values = y_eq_a * F(p, x_grid) 
   
     # Combine both terms
     P = phi_values + f_values
@@ -288,13 +287,13 @@ for i in range(n_iterations):
 
     # Benchmark vectorized
     start = time.perf_counter()
-    _ = gen_kernel_vectorized_jit(model)
+    _ = gen_kernel_vectorized_jit(model).block_until_ready()
     end = time.perf_counter()
     times_vec_jit.append(end - start)
     
     # Benchmark vmap
     start = time.perf_counter()
-    _ = gen_kernel_vmapped_jit(model)
+    _ = gen_kernel_vmapped_jit(model).block_until_ready()
     end = time.perf_counter()
     times_vmap_jit.append(end - start)
 
@@ -315,30 +314,6 @@ print(f"Vmap vs Loops:       {loops_mean / vmap_mean:.1f}x {'faster' if vmap_mea
 print(f"Vmap vs Vectorized:  {vec_mean / vmap_mean:.1f}x {'faster' if vmap_mean < vec_mean else 'slower'}")
 ```
 
-## Performance Visualization
-
-Let's create some visualizations to better understand the performance characteristics.
-
-```{code-cell} ipython3
-# Create performance comparison plot
-fig, ax1 = plt.subplots()
-
-# Box plot of execution times
-times_data = [
-    np.array(times_loops_jit) * 1000000,  # Convert to microseconds
-    np.array(times_vec_jit) * 1000000,
-    np.array(times_vmap_jit) * 1000000
-]
-labels = ['Loops\n(Numba)', 'Vectorized\n(JAX)', 'Vmap\n(JAX)']
-
-ax1.boxplot(times_data, tick_labels=labels)
-ax1.set_ylabel('Execution Time (μs)')
-ax1.set_title('Execution Time Distribution')
-ax1.grid(True, alpha=0.3)
-
-plt.show()
-```
-
 ## Summary and Conclusions
 
 This notebook demonstrated three different approaches to computing transition probabilities in a stochastic inventory model:
@@ -349,15 +324,9 @@ This notebook demonstrated three different approaches to computing transition pr
 
 ### Key Findings:
 
-- All three methods produce **identical results**, confirming correctness
-- Performance varies significantly between approaches
-- JAX's automatic differentiation capabilities make it suitable for optimization problems
-- The choice of method depends on the specific use case and performance requirements
+- All three methods produce identical results, confirming correctness
+- The JAX-based approaches are faster.
 
-### Model Characteristics:
+```{code-cell} ipython3
 
-- Transition probabilities are properly normalized (sum to 1)
-- The inventory dynamics show realistic behavior with demand uncertainty
-- Higher inventory levels with larger orders lead to more distributed next-state probabilities
-
-This implementation can serve as a foundation for solving dynamic programming problems in inventory management, such as finding optimal ordering policies.
+```
