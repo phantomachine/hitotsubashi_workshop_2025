@@ -1,0 +1,8 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{function}\PYG{p}{(}\PYG{n}{data}\PYG{p}{)}\PYG{p}{:}
+    \PYG{c+c1}{\PYGZsh{} perform a calculation based on input data}
+    \PYG{k}{return} \PYG{n}{output}
+\PYG{n}{vectorized\PYGZus{}function} \PYG{o}{=} \PYG{n}{vmap}\PYG{p}{(}\PYG{n}{function}\PYG{p}{)}
+\PYG{c+c1}{\PYGZsh{} Perform the same action on a collection of data sets}
+\PYG{n}{outputs} \PYG{o}{=} \PYG{n}{vectorized\PYGZus{}function}\PYG{p}{(}\PYG{n}{data\PYGZus{}sets}\PYG{p}{)}
+\end{MintedVerbatim}

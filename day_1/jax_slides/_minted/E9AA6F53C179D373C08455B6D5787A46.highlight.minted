@@ -1,0 +1,3 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+❯❯\PYG{+w}{ }gcc\PYG{+w}{ }solow.c\PYG{+w}{ }\PYGZhy{}o\PYG{+w}{ }out\PYG{+w}{ }\PYGZhy{}lm
+\end{MintedVerbatim}

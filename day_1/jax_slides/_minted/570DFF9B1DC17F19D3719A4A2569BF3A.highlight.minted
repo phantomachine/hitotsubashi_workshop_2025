@@ -1,0 +1,16 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} Apply gradient updates to all parameters}
+\PYG{k}{def}\PYG{+w}{ }\PYG{n+nf}{sgd\PYGZus{}update}\PYG{p}{(}\PYG{n}{params}\PYG{p}{,} \PYG{n}{grads}\PYG{p}{,} \PYG{n}{learning\PYGZus{}rate}\PYG{p}{)}\PYG{p}{:}
+    \PYG{k}{return} \PYG{n}{jax}\PYG{o}{.}\PYG{n}{tree}\PYG{o}{.}\PYG{n}{map}\PYG{p}{(}
+        \PYG{k}{lambda} \PYG{n}{p}\PYG{p}{,} \PYG{n}{g}\PYG{p}{:} \PYG{n}{p} \PYG{o}{\PYGZhy{}} \PYG{n}{learning\PYGZus{}rate} \PYG{o}{*} \PYG{n}{g}\PYG{p}{,}
+        \PYG{n}{params}\PYG{p}{,}
+        \PYG{n}{grads}
+    \PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Calculate gradients (PyTree with same structure as params)}
+\PYG{n}{loss\PYGZus{}grad} \PYG{o}{=} \PYG{n}{jax}\PYG{o}{.}\PYG{n}{grad}\PYG{p}{(}\PYG{n}{loss\PYGZus{}fn}\PYG{p}{)}
+\PYG{n}{grads} \PYG{o}{=} \PYG{n}{loss\PYGZus{}grad}\PYG{p}{(}\PYG{n}{params}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{} Update all parameters at once}
+\PYG{n}{updated\PYGZus{}params} \PYG{o}{=} \PYG{n}{sgd\PYGZus{}update}\PYG{p}{(}\PYG{n}{params}\PYG{p}{,} \PYG{n}{grads}\PYG{p}{,} \PYG{l+m+mf}{0.01}\PYG{p}{)}
+\end{MintedVerbatim}

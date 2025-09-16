@@ -22,6 +22,28 @@ applications.
 * Thursday 18/9/2025: 12pm -- 3pm
 * Friday 19/9/2025: 12pm -- 3pm
 
+## Syllabus
+
+### Day 1 (Thursday 18/9/2025)
+
+1. [Fun with JAX](day_1/fun_with_jax.md)
+2. [Job Search](day_1/job_search.md)
+3. [Job Search with Separation](day_1/markov_js_with_sep.md)
+4. [Introduction Slides](day_1/intro_slides/intro.pdf)
+5. [JAX Slides](day_1/jax_slides/jax.pdf)
+6. [An Introduction to JAX](day_1/jax_intro.md)
+
+### Day 2 (Friday 19/9/2025)
+
+1. [Inventory Management Model: Vectorization Practice](day_2/vectorization_example.md)
+2. [Job Search](day_2/job_search.md)
+3. [Job Search with Separation](day_2/markov_js_with_sep.md)
+4. [Inventory Management with JAX](day_2/inventory_model.md)
+5. [Deep Learning Slides](day_2/dl_slides/anns.pdf)
+6. [Simple Neural Network Regression with Keras and JAX](day_2/keras.md)
+7. [Neural Network Regression with JAX and Optax](day_2/jax_nn.md)
+8. [Advanced Nonlinear Regression with JAX](day_2/extended_jax_nn.md)
+
 
 ## Additional Information
 
