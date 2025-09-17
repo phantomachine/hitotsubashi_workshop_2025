@@ -24,15 +24,11 @@
     \begin{enumerate}
         \item Introduction
         \vspace{0.5em}
+        \item AI systems
+        \vspace{0.5em}
         \item ANNs and deep learning
         \vspace{0.5em}
-        \item ML and deep learning frameworks (programming)
-        \vspace{0.5em}
-        \item Stochastic approximation
-        \vspace{0.5em}
-        \item Dynamic programming
-        \vspace{0.5em}
-        \item Reinforcement learning
+        \item Computational methods
         \vspace{0.5em}
         \item Economic applications
     \end{enumerate}
@@ -84,7 +80,6 @@
 
         \vspace{0.5em}
         \vspace{0.5em}
-        \vspace{0.5em}
 
     Features:
 
@@ -95,22 +90,33 @@
         \vspace{0.5em}
         \item Asks an ensemble of LLMs and then iterates, tests, refines
         \vspace{0.5em}
+    \end{itemize}
+
+    Process
+
+        \vspace{0.5em}
+
+    \begin{enumerate}
+        \item Proposed solutions evaluated 
+        \vspace{0.5em}
         \item Promising solutions are selected and mutated by LLMs 
         \vspace{0.5em}
         \item ``Survival of the fittest" progressively improves performance
-    \end{itemize}
+    \end{enumerate}
 
 \end{frame}
 
 \begin{frame}
     
 
-    Deployed across Google, AlphaEvolve 
+    Outcomes at Google:
+
+        \vspace{0.5em}
 
     \begin{itemize}
-        \item Enhanced efficiency in data centers, chip design (TPUs), and AI training 
+        \item Enhanced efficiency in chip design (TPUs)
         \vspace{0.5em}
-        \item Improved data center scheduling, recovering 0.7\% of Google's global compute resources
+        \item Improved data center scheduling
         \vspace{0.5em}
         \item Discovered new matrix multiplication algorithms (surpassing Strassen's algorithm for 4x4 complex matrices) 
     \end{itemize}
@@ -133,16 +139,20 @@
             \vspace{0.5em}
         \item Predicts 3D protein structures
             \vspace{0.5em}
-        \item Open-sourced code and database 
-            \vspace{0.5em}
-        \item Accelerating drug discovery and design
-            \vspace{0.5em}
-        \item Enabling research on diseases like cancer and Alzheimer's
-            \vspace{0.5em}
-        \item Supporting enzyme engineering for sustainability
     \end{itemize}
 
+
             \vspace{0.5em}
+    Applications:
+
+    \begin{itemize}
+        \item Drug discovery and design
+            \vspace{0.5em}
+        \item Research on diseases (e.g., cancer, Alzheimer's)
+            \vspace{0.5em}
+        \item Enzyme engineering 
+    \end{itemize}
+
             \vspace{0.5em}
             \vspace{0.5em}
     2024 Nobel Prize in Chemistry awarded to Demis Hassabis and John
@@ -164,13 +174,16 @@
 
 
 \begin{frame}
+
+    \textbf{Claude:}
+
+    \medskip
     
   Thank you! It was a great exercise working through this model. We accomplished quite a lot:
 
   \begin{itemize}
       \item Fixed critical bugs 
       \item Improved architecture 
-      \item Added comprehensive simulation 
       \item Enhanced code quality 
   \end{itemize}
 
@@ -219,7 +232,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Google Veo 3}
+    \frametitle{Video Generators}
     
     \begin{figure}
        \centering
@@ -440,11 +453,9 @@
 
 \begin{frame}[fragile]
 
-    \emp{Multithreading} and \emp{multiprocessing}
-
     \vspace{0.5em}
     \begin{itemize}
-        \item Multithreading over GPU cores / compute units 
+        \item Vectorization on one accelerator
     \end{itemize}
     
     \begin{minted}{python}
@@ -459,7 +470,7 @@ outputs = vectorized_function(data_sets)
     \vspace{0.5em}
     \vspace{0.5em}
     \begin{itemize}
-        \item Multiprocessing over all GPUs in a farm / cluster 
+        \item Data parallelism across multiple accelerators
     \end{itemize}
 
     \begin{minted}{python}
@@ -559,15 +570,15 @@ def f(x):
     \begin{itemize}
         \item Tensorflow
         \vspace{0.5em}
-        \item \brown{PyTorch} (Llama, ChatGPT)
+        \item PyTorch (Llama, ChatGPT)
         \vspace{0.5em}
-        \item \brown{Google JAX} (Gemini, DeepMind)
+        \item Google JAX (Gemini, DeepMind)
         \vspace{0.5em}
         \item Keras (backends $=$ JAX, PyTorch)
         \vspace{0.5em}
-        \item Mojo? (Modular (Python))
+        \item Mojo (Modular (Python))
         \vspace{0.5em}
-        \item MATLAB? 
+        \item MATLAB???
     \end{itemize}
 
 \end{frame}
