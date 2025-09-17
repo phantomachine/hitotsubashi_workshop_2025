@@ -36,9 +36,9 @@ applications.
 
 ### Day 2 (Friday 19/9/2025)
 
-1. [Inventory Management Model: Vectorization Practice](day_2/vectorization_example.ipynb)
-2. [Job Search](day_2/job_search.ipynb)
-3. [Job Search with Separation](day_2/markov_js_with_sep.ipynb)
+1. [Inventory Management: Vectorization Practice with JAX](day_2/vectorization_example.ipynb)
+2. [Job Search with JAX](day_2/job_search.ipynb)
+3. [Job Search with Separation with JAX](day_2/markov_js_with_sep.ipynb)
 4. [Inventory Management with JAX](day_2/inventory_model.ipynb)
 5. [Deep Learning Slides](day_2/dl_slides/anns.pdf)
 6. [Simple Neural Network Regression with Keras and JAX](day_2/keras.ipynb)

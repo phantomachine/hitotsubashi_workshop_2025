@@ -56,7 +56,7 @@ At the start of each period, an unemployed worker receives wage offer $W_t$.
 We assume that 
 
 $$
-    W_{t+1} = \rho W_t + \nu Z_{t+1}
+    \ln W_{t+1} = \rho \ln W_t + \nu Z_{t+1}
 $$
 
 where $(Z_t)_{t \geq 0}$ is IID and standard normal.
@@ -131,7 +131,7 @@ model.β
 ```
 
 ```{code-cell} ipython3
-model.w_vals.mean()  
+model.w_vals.mean()
 ```
 
 Here's the Bellman operator
@@ -172,7 +172,7 @@ $$
 
 Here $\mathbf 1$ is an indicator function.
 
-* $\sigma(w) = 1$ means stop
+* $\sigma(w) = 1$ means stop (accept)
 * $\sigma(w) = 0$ means continue.
 
 ```{code-cell} ipython3
@@ -268,12 +268,12 @@ print()
 We compute the reservation wage as the first $w$ such that $\sigma(w)=1$.
 
 ```{code-cell} ipython3
-stop_indices = np.where(σ_star == 1)
+stop_indices = np.where(σ_star == 1)[0]
 stop_indices
 ```
 
 ```{code-cell} ipython3
-res_wage_index = min(stop_indices[0])
+res_wage_index = min(stop_indices)
 ```
 
 ```{code-cell} ipython3
@@ -348,7 +348,11 @@ def create_risk_sensitive_js_model(
 Now you need to modify `T` and `get_greedy` and then run value function iteration again.
 
 ```{code-cell} ipython3
-for _ in range(15):
+# Put your code here
+```
+
+```{code-cell} ipython3
+for _ in range(25):
     print("Solution below!")
 ```
 
@@ -510,4 +514,8 @@ v_star_1, σ_star_1 = generic_vfi(
 
 correct = np.allclose(v_star_0, v_star_1) and np.allclose(σ_star_0, σ_star_1)
 print(f"Success = {correct}")
+```
+
+```{code-cell} ipython3
+
 ```

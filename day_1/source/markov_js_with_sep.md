@@ -34,31 +34,45 @@ When unemployed and receiving wage offer w, the agent chooses between:
 1. Accept offer w: Become employed at wage w
 2. Reject offer: Remain unemployed, receive c, get new offer next period
 
++++
+
 ## Value Functions
 
-- v_u*(w): Value of being unemployed when current wage offer is w
-- v_e*(w): Value of being employed at wage w
+- v_u(w): Value of being unemployed when current wage offer is w
+- v_e(w): Value of being employed at wage w
 
 ## Bellman Equations
 
 The unemployed worker's value function satisfies:
 
-$$v_u^*(w) = \max\{v_e^*(w), c + \beta \sum_{w'} v_u^*(w') P(w,w')\}$$
+$$v_u(w) = \max\{v_e(w), c + \beta \sum_{w'} v_u(w') P(w,w')\}$$
 
 The employed worker's value function satisfies:
 
-$$v_e^*(w) = w + \beta[\alpha \sum_{w'} v_u^*(w') P(w,w') + (1-\alpha) v_e^*(w)]$$
+$$v_e(w) = w + \beta[\alpha \sum_{w'} v_u(w') P(w,w') + (1-\alpha) v_e(w)]$$
+
+We can rewrite these using matrix-vector style notation as
+
+
+$$v_u(w) = \max\{v_e(w), c + \beta (P v_u)(w) \}$$
+
+The employed worker's value function satisfies:
+
+$$v_e(w) = w + \beta[\alpha (P v_u)(w) + (1-\alpha) v_e(w)]$$
+
++++
 
 ## Computational Approach
 
-1. Solve the employed value function analytically:
-   $$v_e^*(w) = \frac{1}{1-\beta(1-\alpha)} \cdot (w + \alpha\beta(Pv_u^*)(w))$$
+1. Solve the employed value function in terms of $v_u$:
 
-2. Substitute into unemployed Bellman equation to get:
-   $$v_u^*(w) = \max\left\{\frac{1}{1-\beta(1-\alpha)} \cdot (w + \alpha\beta(Pv_u^*)(w)), c + \beta(Pv_u^*)(w)\right\}$$
+   $$v_e(w) = \frac{1}{1-\beta(1-\alpha)} \cdot (w + \alpha\beta(Pv_u)(w))$$
 
-3. Use value function iteration to solve for v_u*
-4. Compute optimal policy: accept if v_e*(w) ≥ c + β(Pv_u*)(w)
+3. Substitute into unemployed Bellman equation to get:
+   $$v_u(w) = \max\left\{\frac{1}{1-\beta(1-\alpha)} \cdot (w + \alpha\beta(Pv_u)(w)), c + \beta(Pv_u)(w)\right\}$$
+
+4. Use value function iteration to solve for  the fixed point $v_u^*$
+5. Compute optimal policy: accept if $v_e^*(w) ≥ c + \beta(Pv_u^*)(w)$
 
 The optimal policy is a reservation wage strategy: accept all wages above
 some threshold w*.
@@ -80,7 +94,7 @@ from quantecon.markov import tauchen
 import numpy as np
 from typing import NamedTuple
 import matplotlib.pyplot as plt
-from numba import jit
+import numba
 ```
 
 First, we implement the successive approximation algorithm:
@@ -143,7 +157,7 @@ def create_js_with_sep_model(
 Here's the Bellman operator for the unemployed worker's value function:
 
 ```{code-cell} ipython3
-@jit
+@numba.jit
 def T(v: np.ndarray, model: Model) -> np.ndarray:
     """The Bellman operator for the value of being unemployed."""
     n, w_vals, P, β, c, α = model
@@ -157,7 +171,7 @@ The next function computes the optimal policy under the assumption that v is
 the value function:
 
 ```{code-cell} ipython3
-@jit
+@numba.jit
 def get_greedy(v: np.ndarray, model: Model) -> np.ndarray:
     """Get a v-greedy policy."""
     n, w_vals, P, β, c, α = model
@@ -177,7 +191,11 @@ def vfi(model: Model, verbose: bool = False):
     v_star = successive_approx(lambda v: T(v, model), v_init, verbose)
     σ_star = get_greedy(v_star, model)
     return v_star, σ_star
+```
 
+Here's a function to compute the reservation wage given a policy $\sigma$
+
+```{code-cell} ipython3
 def get_reservation_wage(σ: np.ndarray, model: Model) -> float:
     """
     Calculate the reservation wage from a given policy.
@@ -216,7 +234,7 @@ h_star = c + β * P @ v_star
 
 w_star = get_reservation_wage(σ_star, model)
 
-fig, ax = plt.subplots(figsize=(9, 5.2))
+fig, ax = plt.subplots()
 ax.plot(w_vals, h_star, linewidth=4, ls="--", alpha=0.4,
         label="continuation value")
 ax.plot(w_vals, accept, linewidth=4, ls="--", alpha=0.4,
@@ -241,7 +259,7 @@ for (i_α, α) in enumerate(α_vals):
     w_star = get_reservation_wage(σ_star, model)
     w_star_vec[i_α] = w_star
 
-fig, ax = plt.subplots(figsize=(9, 5.2))
+fig, ax = plt.subplots()
 ax.plot(α_vals, w_star_vec, linewidth=2, alpha=0.6,
         label="reservation wage")
 ax.legend(frameon=False)
@@ -255,13 +273,13 @@ plt.show()
 Now let's simulate the employment dynamics of a single agent under the optimal policy:
 
 ```{code-cell} ipython3
-@jit
+@numba.jit
 def weighted_choice(probs):
     """Numba-compatible weighted random choice."""
     cumsum = np.cumsum(probs)
     return np.searchsorted(cumsum, np.random.random())
 
-@jit
+@numba.jit
 def update_agent(is_employed, wage_idx, model, σ_star):
 
     n, w_vals, P, β, c, α = model
@@ -313,7 +331,7 @@ def simulate_employment_path(
 
     # Start unemployed with uniform wage draw
     is_employed = False
-    wage_idx = np.random.randint(0, n)
+    wage_idx = 0
 
     for t in range(T):
         wage_path[t] = w_vals[wage_idx]
@@ -334,9 +352,9 @@ model = create_js_with_sep_model()
 v_star, σ_star = vfi(model)
 w_star = get_reservation_wage(σ_star, model)
 
-wage_path, employment_status = simulate_employment_path(model)
+wage_path, employment_status = simulate_employment_path(model, T=5_000)
 
-fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9.6, 8))
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(8, 8))
 
 # Plot employment status
 ax1.plot(employment_status, 'b-', alpha=0.7, linewidth=1)
@@ -358,7 +376,7 @@ ax2.set_title('Wage path (actual and offers)')
 ax2.legend()
 
 # Plot cumulative fraction of time unemployed
-unemployed_indicator = (employment_status == 0).astype(int)
+unemployed_indicator = (employment_status == 0)
 cumulative_unemployment = (
     np.cumsum(unemployed_indicator) /
     np.arange(1, len(employment_status) + 1)
@@ -396,7 +414,7 @@ The model successfully captures the essential features of labor market dynamics 
 Now let's simulate many agents simultaneously to examine the cross-sectional unemployment rate:
 
 ```{code-cell} ipython3
-@jit
+@numba.jit
 def simulate_cross_section_numba(
         employment_matrix, is_employed, wage_indices, model, σ_star,
         n_agents, T
@@ -459,7 +477,7 @@ def plot_cross_sectional_unemployment(model: Model):
     """
     unemployment_rates, employment_matrix = simulate_cross_section(model)
 
-    fig, ax = plt.subplots(figsize=(9.6, 4.8))
+    fig, ax = plt.subplots()
 
     # Plot unemployment rate over time
     ax.plot(unemployment_rates, 'b-', alpha=0.8, linewidth=1.5,
@@ -507,6 +525,10 @@ plot_cross_sectional_unemployment(model_low_c)
 
 Create a plot that shows how the steady state cross-sectional unemployment rate
 changes with unemployment compensation.
+
+```{code-cell} ipython3
+# put your code here
+```
 
 ```{code-cell} ipython3
 for _ in range(20):
