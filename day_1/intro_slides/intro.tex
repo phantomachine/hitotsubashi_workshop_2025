@@ -76,12 +76,7 @@
 
 \begin{frame}
     
-    An AI agent that develops algorithms and codebases using LLMs
-
-        \vspace{0.5em}
-        \vspace{0.5em}
-
-    Features:
+    Features
 
         \vspace{0.5em}
 
@@ -92,6 +87,8 @@
         \vspace{0.5em}
     \end{itemize}
 
+        \vspace{0.5em}
+        \vspace{0.5em}
     Process
 
         \vspace{0.5em}
@@ -116,7 +113,9 @@
     \begin{itemize}
         \item Enhanced efficiency in chip design (TPUs)
         \vspace{0.5em}
+        \vspace{0.5em}
         \item Improved data center scheduling
+        \vspace{0.5em}
         \vspace{0.5em}
         \item Discovered new matrix multiplication algorithms (surpassing Strassen's algorithm for 4x4 complex matrices) 
     \end{itemize}
@@ -459,12 +458,13 @@
     \end{itemize}
     
     \begin{minted}{python}
-def function(data):
-    # perform a calculation based on input data
+def function(data_point):
+    # perform a calculation on one data point
     return output
+
 vectorized_function = vmap(function)  
-# Perform the same action on a collection of data sets
-outputs = vectorized_function(data_sets)   
+# Perform the same action on the whole data set
+outputs = vectorized_function(data_set)   
     \end{minted}
 
     \vspace{0.5em}
@@ -474,8 +474,8 @@ outputs = vectorized_function(data_sets)
     \end{itemize}
 
     \begin{minted}{python}
-parallel_function = pmap(function)  
-outputs = parallel_function(list_of_tasks)  
+parallel_function = pmap(vectorized_function)  
+outputs = parallel_function(data_sets)  
     \end{minted}
 
 \end{frame}
@@ -487,15 +487,9 @@ outputs = parallel_function(list_of_tasks)
     \vspace{0.5em}
     At GTC 2025, NVIDIA announced native support and full integration of Python in its CUDA toolkit
 
-
     \vspace{0.5em}
     Over the last year, NVIDIA made CUDA Core -- a ``Pythonic
     reimagining of the CUDA runtime to be naturally and natively Python.''
-
-    \vspace{0.5em}
-    Coders can use natural Python interfaces and the scripting model of calling
-    functions and libraries to create AI programs for execution on NVIDIA
-    GPUs
 
     \vspace{0.5em}
     \vspace{0.5em}
@@ -519,14 +513,14 @@ from jax import grad
 
 def f(θ, x):
     # add details here
+    return prediction
 
 def loss(θ, x, y):
   return jnp.sum((y - f(θ, x))**2)
 
 loss_gradient = grad(loss)
-d = loss_gradient(θ, x_data, y_data)
-θ = θ - λ * d
 
+θ = θ - λ * loss_gradient(θ, x_data, y_data)
     \end{minted}
 
 \end{frame}
@@ -767,17 +761,15 @@ def f(x):
         \vspace{0.2em}
         \vspace{0.2em}
     \pause
-    The aim of these lectures is \textbf{limited}
+    Aims
 
         \vspace{0.2em}
     \begin{itemize}
         \item Better understanding of core AI methods
-        \vspace{0.2em}
+            \vspace{0.2em}
         \item Better understanding of core tools (hardware / software)
-        \vspace{0.2em}
-        \item How can this knowledge be applied to economic modeling of today?
-        \vspace{0.2em}
-        \item Focus is on algorithms and numerical methods
+            \vspace{0.2em}
+        \item Apply knowledge to current economic modeling 
     \end{itemize}
 
 \end{frame}

@@ -1,6 +1,0 @@
-\begin{MintedVerbatim}[commandchars=\\\{\}]
-\PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{n}\PYG{p}{)}\PYG{p}{:}
-    \PYG{k}{for} \PYG{n}{j} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{n}{m}\PYG{p}{)}\PYG{p}{:}
-        \PYG{c+c1}{\PYGZsh{} Access row elements of W contiguously}
-        \PYG{n}{y}\PYG{p}{[}\PYG{n}{j}\PYG{p}{]} \PYG{o}{+}\PYG{o}{=} \PYG{n}{W}\PYG{p}{[}\PYG{n}{i}\PYG{p}{,} \PYG{n}{j}\PYG{p}{]} \PYG{o}{*} \PYG{n}{x}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}
-\end{MintedVerbatim}
