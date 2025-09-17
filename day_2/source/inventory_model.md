@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.17.2
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -18,8 +18,8 @@ kernelspec:
 Author: [John Stachurski](https://johnstachurski.net)
 
 This notebook studies a stochastic dynamic inventory management model and
-computes the optimal policy using two key dynamic programming algorithms:
-Value Function Iteration (VFI) and Howard's Policy Iteration (HPI).
+computes the optimal policy using
+value function iteration (VFI) and Howard's policy iteration (HPI).
 
 ## Notebook Overview
 
@@ -447,7 +447,6 @@ Now we can implement HPI:
 4. Convergence Check: If $\sigma' = \sigma$, stop; otherwise set $\sigma = \sigma'$ and repeat
 
 ```{code-cell} ipython3
-
 def howard_policy_iteration(model, max_iter=1000, tol=1e-6):
     """
     Howard's policy iteration algorithm.
