@@ -16,33 +16,14 @@
 \end{frame}
 
 
-\begin{frame}{Code}
-
-    In this lecture series we will code in Python
-
-    \pause
-
-        \vspace{0.5em}
-        \vspace{0.5em}
-    Favorite libraries
-
-    \begin{itemize}
-        \item \brown{Google JAX}
-        \vspace{0.2em}
-        \item \brown{Google JAX}
-        \vspace{0.2em}
-        \item \brown{Google JAX}\ldots
-        \vspace{0.2em}
-    \end{itemize}
-
-\end{frame}
-
 
 \begin{frame}
     \frametitle{Topics}
 
     \begin{itemize}
         \item Scientific computing: history and background
+        \vspace{0.5em}
+        \item What's JAX?
         \vspace{0.5em}
         \item JIT compilation
         \vspace{0.5em}
@@ -203,7 +184,7 @@ print(k)
 
 \begin{frame}
     
-    Python is \emp{interpreted} rather than compiled
+    Python is \brown{interpreted} rather than compiled
 
     \vspace{0.5em}
     \begin{itemize}
@@ -249,7 +230,45 @@ print(k)
 \end{frame}
 
 \begin{frame}
+    \frametitle{MATLAB}
+
+    ``MATLAB is Fortran for the 1990s!''
+
+    \vspace{0.5em}
+    \vspace{0.5em}
+
+    \begin{figure}
+       \centering
+       \scalebox{.6}{\includegraphics[trim={2cm 8cm 6cm 3cm},clip]{matlab.pdf}}
+    \end{figure}
+
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+    
+    \begin{minted}{matlab}
+        A = [2.0, -1.0
+             5.0, -0.5];
+
+        b = [0.5, 1.0]';
+
+        x = inv(A) * b
+    \end{minted}
+    
+\end{frame}
+
+
+
+    
+
+
+\begin{frame}
     \frametitle{Python + NumPy}
+
+    Open source MATLAB-like array operations within Python
 
     \begin{figure}
        \begin{center} % l b r t
@@ -301,40 +320,6 @@ print(k)
 \end{frame}
 
 
-\begin{frame}
-    \frametitle{MATLAB}
-
-    NumPy is similar to and borrows from the older MATLAB programming
-    environment
-
-    \vspace{0.5em}
-    \vspace{0.5em}
-    \begin{figure}
-       \begin{center} % l b r t
-        \scalebox{.6}{\includegraphics[trim={2cm 8cm 6cm 3cm},clip]{matlab.pdf}}
-       \end{center}
-    \end{figure}
-
-
-\end{frame}
-
-
-\begin{frame}[fragile]
-    
-    \begin{minted}{matlab}
-        A = [2.0, -1.0
-             5.0, -0.5];
-
-        b = [0.5, 1.0]';
-
-        x = inv(A) * b
-    \end{minted}
-    
-\end{frame}
-
-
-
-    
 
 \begin{frame}
     
@@ -354,7 +339,7 @@ print(k)
     \begin{itemize}
         \item Can be highly memory intensive (intermediate arrays)
         \vspace{0.5em}
-        \item \underline{Fails} to specialize on array \emp{shapes}
+        \item \underline{Fails} to specialize on array \brown{shapes}
         \vspace{0.5em}
         \item Limited --- how would you accelerate the Solow code using NumPy?
     \end{itemize}
@@ -465,9 +450,10 @@ solow(0.2)  # JIT-compiled at first call
             \item slow first runs
             \vspace{0.2em}
         \end{itemize}
-        \item Package instability
         \vspace{0.2em}
-        \item Repeated breaking changes
+        \item Repeated breaking changes and package instability
+        \vspace{0.2em}
+        \item Parallelization not well automated
     \end{itemize}
 
 \end{frame}
@@ -525,24 +511,21 @@ solow(0.2)
 
     \begin{itemize}
         \item Developed by \href{https://research.google/}{Google Research}
-            (prev.\ Google Brain)
             \vspace{0.5em}
-        \item NumPy-style API for array operations
+        \item Conforms to NumPy API for array operations
             \vspace{0.5em}
         \item GPU/TPU acceleration 
             \vspace{0.5em}
         \item Automatic differentiation
             \vspace{0.5em}
         \item Math-centric library semantics
-            \vspace{0.5em}
-        \item Rising popularity among ML researchers
     \end{itemize}
 
             \vspace{0.5em}
             \vspace{0.5em}
 
     ``The JAX compiler aims to enable researchers to write Python programs\ldots
-        that are automatically compiled and scaled to leverage accelerators and
+    that are \textbf{automatically} compiled and scaled to leverage accelerators and
         supercomputers''
 
 \end{frame}
@@ -760,7 +743,7 @@ grad_loss = jit(grad(loss))  # Now use gradient descent
 
     \vspace{0.5em}
     \begin{itemize}
-        \item[] $\implies$ Functions are \emp{pure}
+        \item[] $\implies$ Functions are \brown{pure}
     \end{itemize}
 
 
@@ -785,9 +768,9 @@ def loss(θ, x, y):
     Pure functions:
 
     \begin{enumerate}
-        \item \emp{Deterministic}
+        \item \brown{Deterministic}
         \vspace{0.5em}
-        \item \emp{No side effects}
+        \item \brown{No side effects}
     \end{enumerate}
 
 
@@ -805,9 +788,7 @@ def loss(θ, x, y):
     \begin{itemize}
         \item Won't change global state
         \vspace{0.5em}
-        \item Won't modify data passed to the function
-        \vspace{0.5em}
-        \item Typically use immutable data
+        \item Won't modify data passed to the function (immutable data)
     \end{itemize}
 
 \end{frame}
@@ -883,8 +864,6 @@ def add_tax_pure(prices, tax_rate):
         \vspace{0.5em}
          \item Pure functions are easier to parallelize and optimize (don't
              depend on shared mutable state)
-        \vspace{0.5em}
-         \item Transformations can be composed cleanly 
      \end{itemize}
 
         \vspace{0.5em}
