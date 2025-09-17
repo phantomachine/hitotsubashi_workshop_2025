@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.17.3
+    jupytext_version: 1.17.2
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -195,7 +195,7 @@ def get_reservation_wage(σ: jnp.ndarray, model: Model) -> float:
     n, w_vals, P, β, c, α = model
 
     # Find all wage indices where policy indicates acceptance
-    accept_indices = jnp.where(σ)[0]
+    accept_indices = jnp.where(σ == 1)[0]
 
     if len(accept_indices) == 0:
         return jnp.inf  # Agent never accepts any wage
@@ -270,8 +270,6 @@ def update_agent(key, is_employed, wage_idx, model, σ_star):
     
     key1, key2 = jax.random.split(key)
     new_wage_idx = weighted_choice(key1, P[wage_idx, :])
-
-    # Generate random events
     separation_occurs = jax.random.uniform(key2) < α
     accepts = σ_star[wage_idx]
     
@@ -348,7 +346,7 @@ w_star = get_reservation_wage(σ_star, model)
 
 wage_path, employment_status = simulate_employment_path(model)
 
-fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9.6, 8))
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(8, 6))
 
 # Plot employment status
 ax1.plot(employment_status, 'b-', alpha=0.7, linewidth=1)
@@ -388,8 +386,6 @@ ax3.set_ylim(0, 1)
 
 plt.tight_layout()
 plt.show()
-
-# Print summary statistics
 ```
 
 ## Results Summary
@@ -492,7 +488,7 @@ def plot_cross_sectional_unemployment(model: Model):
     """
     unemployment_rates, employment_matrix = simulate_cross_section(model)
 
-    fig, ax = plt.subplots(figsize=(9.6, 4.8))
+    fig, ax = plt.subplots(figsize=(8, 4))
 
     # Plot unemployment rate over time
     ax.plot(unemployment_rates, 'b-', alpha=0.8, linewidth=1.5,
@@ -536,8 +532,6 @@ model_low_c = create_js_with_sep_model(c=0.5)
 plot_cross_sectional_unemployment(model_low_c)
 ```
 
-
-
 ## Exercise
 
 Create a plot that shows how the steady state cross-sectional unemployment rate
@@ -546,7 +540,6 @@ changes with unemployment compensation.
 ```{code-cell} ipython3
 for _ in range(20):
     print('Solution below!')
-
 ```
 
 ## Solution
@@ -566,10 +559,7 @@ ax.plot(
 )
 ax.legend(frameon=False)
 plt.show()
-
 ```
-
-
 
 ```{code-cell} ipython3
 
