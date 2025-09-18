@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.17.3
+    jupytext_version: 1.17.2
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -40,6 +40,7 @@ import jax
 from jax import lax
 import time
 from typing import NamedTuple, Callable
+from functools import partial
 ```
 
 ## Model
@@ -192,13 +193,6 @@ def get_greedy(v: jnp.ndarray, model: Model) -> jnp.ndarray:
 Here's a routine for value function iteration.
 
 ```{code-cell} ipython3
-@jax.jit
-def vfi_step(v: jnp.ndarray, model: Model) -> tuple[jnp.ndarray, float]:
-    """Single step of value function iteration."""
-    new_v = T(v, model)
-    error = jnp.max(jnp.abs(new_v - v))
-    return new_v, error
-
 def vfi(
         model: Model,
         max_iter: int = 10_000,
@@ -212,11 +206,12 @@ def vfi(
     v = jnp.zeros_like(model.w_vals)  # Initial condition
 
     for i in range(max_iter):
-        new_v, error = vfi_step(v, model)
-
+        new_v = T(v, model)
+        error = jnp.max(jnp.abs(new_v - v))
         if error < tol:
             if verbose:
-                print(f"VFI converged after {i+1} iterations (error: {error:.2e})")
+                print(f"VFI converged after {i+1} iterations "
+                      f"(error: {error:.2e})")
             break
         v = new_v
     else:
@@ -224,6 +219,8 @@ def vfi(
 
     return new_v, get_greedy(new_v, model)
 ```
+
++++
 
 ## Computing the solution
 
@@ -240,9 +237,10 @@ Here's the optimal policy:
 
 ```{code-cell} ipython3
 fig, ax = plt.subplots()
-ax.plot(σ_star)
+ax.plot(w_vals, σ_star)
 ax.set_xlabel("wage values")
 ax.set_ylabel("optimal choice (stop=1)")
+ax.set_yticks((0, 1))
 plt.show()
 ```
 
@@ -257,7 +255,8 @@ for _ in range(10):
     runtimes.append(end - start)
 
 print()
-print(f"Mean runtime for value function iteration = {jnp.mean(jnp.array(runtimes)):.4f}")
+mean_runtime = jnp.mean(jnp.array(runtimes))
+print(f"Mean runtime for value function iteration = {mean_runtime:.4f}")
 print()
 ```
 
@@ -375,13 +374,6 @@ def get_greedy_rs(v: jnp.ndarray, model: RiskModel) -> jnp.ndarray:
     return σ
 
 
-@jax.jit
-def vfi_rs_step(v: jnp.ndarray, model: RiskModel) -> tuple[jnp.ndarray, float]:
-    """Single step of risk-sensitive value function iteration."""
-    new_v = T_rs(v, model)
-    error = jnp.max(jnp.abs(new_v - v))
-    return new_v, error
-
 def vfi_rs(
         model: RiskModel,
         max_iter: int = 10_000,
@@ -391,8 +383,8 @@ def vfi_rs(
     v = jnp.zeros_like(model.w_vals)
 
     for i in range(max_iter):
-        new_v, error = vfi_rs_step(v, model)
-
+        new_v = T_rs(v, model)
+        error = jnp.max(jnp.abs(new_v - v))
         if error < tol:
             print(f"VFI converged after {i+1} iterations (error: {error:.2e})")
             break
@@ -401,9 +393,9 @@ def vfi_rs(
         print(f"VFI reached max iterations ({max_iter}) with error {error:.2e}")
 
     return new_v, get_greedy_rs(new_v, model)
+```
 
-
-
+```{code-cell} ipython3
 model_rs = create_risk_sensitive_js_model()
 n, w_vals, P, β, c, θ = model_rs
 v_star_rs, σ_star_rs = vfi_rs(model_rs)
@@ -451,17 +443,7 @@ same job.
 ```{code-cell} ipython3
 for _ in range(15):
     print("Solution below!")
-```
 
-```{code-cell} ipython3
-def create_vfi_step(bellman_operator: Callable):
-    """Create a JIT-compiled VFI step function for a given Bellman operator."""
-    @jax.jit
-    def vfi_step_generic(v: jnp.ndarray) -> tuple[jnp.ndarray, float]:
-        new_v = bellman_operator(v)
-        error = jnp.max(jnp.abs(new_v - v))
-        return new_v, error
-    return vfi_step_generic
 
 def generic_vfi(
         bellman_operator: Callable,
@@ -475,11 +457,10 @@ def generic_vfi(
 
     """
     v = v_zero
-    vfi_step_fn = create_vfi_step(bellman_operator)
 
     for i in range(max_iter):
-        new_v, error = vfi_step_fn(v)
-
+        new_v = bellman_operator(v)
+        error = jnp.max(jnp.abs(new_v - v))
         if error < tol:
             print(f"VFI converged after {i+1} iterations (error: {error:.2e})")
             break
@@ -495,87 +476,42 @@ def generic_vfi(
 This version uses JAX's `lax.while_loop` for maximum performance with early termination.
 
 ```{code-cell} ipython3
-def create_vfi_lax(bellman_operator: Callable, get_greedy_fn: Callable):
-    """Create a fully JIT-compiled VFI function for specific operators."""
+@partial(jax.jit, static_argnums=(0, 1))
+def compiled_generic_vfi(
+        bellman_operator: Callable,
+        get_greedy_function: Callable,
+        v_zero: jnp.ndarray,
+        max_iter: int = 10_000,
+        tol: float = 1e-4
+    ):
+    """
+    Solve the infinite-horizon Markov job search model by VFI.
 
-    @jax.jit
-    def vfi_lax_impl(v_init: jnp.ndarray,
-                     max_iter: int = 10000,
-                     tol: float = 1e-4) -> tuple[jnp.ndarray, jnp.ndarray, int, bool]:
-        """
-        Fully JIT-compiled VFI using lax.while_loop.
+    """
+    v = v_zero
+    i = 0
+    error = tol + 1
+    initial_loop_state = i, error, v
 
-        Returns:
-            - v_star: final value function
-            - policy: optimal policy
-            - iterations: number of iterations used
-            - converged: whether algorithm converged
-        """
+    def condition(loop_state):
+        i, error, v = loop_state
+        return jnp.logical_and(error > tol, i < max_iter)
 
-        def cond_fn(carry):
-            v, error, iteration, converged = carry
-            # Continue while not converged and under max iterations
-            return (error >= tol) & (iteration < max_iter)
+    def update(loop_state):
+        i, error, v = loop_state
+        new_i = i + 1
+        new_v = bellman_operator(v)
+        new_error = jnp.max(jnp.abs(new_v - v))
+        return new_i, new_error, new_v
 
-        def body_fn(carry):
-            v, error, iteration, converged = carry
-            new_v = bellman_operator(v)
-            new_error = jnp.max(jnp.abs(new_v - v))
-            new_iteration = iteration + 1
-            new_converged = new_error < tol
-            return new_v, new_error, new_iteration, new_converged
-
-        # Initial state: (value function, error, iteration count, converged flag)
-        init_carry = (v_init, jnp.inf, 0, False)
-
-        # Run the while loop
-        final_v, final_error, iterations, converged = lax.while_loop(cond_fn, body_fn, init_carry)
-
-        # Compute policy
-        policy = get_greedy_fn(final_v)
-
-        return final_v, policy, iterations, converged
-
-    return vfi_lax_impl
-
-
-def vfi_lax_standard(model: Model, max_iter: int = 10000, tol: float = 1e-4, verbose: bool = False):
-    """LAX VFI for standard job search model."""
-    bellman_closure = lambda v: T(v, model)
-    greedy_closure = lambda v: get_greedy(v, model)
-    vfi_lax_fn = create_vfi_lax(bellman_closure, greedy_closure)
-
-    v_init = jnp.zeros_like(model.w_vals)
-    v_star, policy, iterations, converged = vfi_lax_fn(v_init, max_iter, tol)
-
-    if verbose:
-        if converged:
-            print(f"LAX VFI converged after {iterations} iterations")
-        else:
-            print(f"LAX VFI hit max iterations ({max_iter})")
-
-    return v_star, policy
-
-
-def vfi_lax_risk(model: RiskModel, max_iter: int = 10000, tol: float = 1e-4, verbose: bool = False):
-    """LAX VFI for risk-sensitive job search model."""
-    bellman_closure = lambda v: T_rs(v, model)
-    greedy_closure = lambda v: get_greedy_rs(v, model)
-    vfi_lax_fn = create_vfi_lax(bellman_closure, greedy_closure)
-
-    v_init = jnp.zeros_like(model.w_vals)
-    v_star, policy, iterations, converged = vfi_lax_fn(v_init, max_iter, tol)
-
-    if verbose:
-        if converged:
-            print(f"LAX VFI converged after {iterations} iterations")
-        else:
-            print(f"LAX VFI hit max iterations ({max_iter})")
-
-    return v_star, policy
+    final_loop_state = jax.lax.while_loop(condition, update, initial_loop_state)
+    i, error, v = final_loop_state
+    return v, get_greedy_function(v)
 ```
 
-Let's test this with the original model (comparing the output of `vfi` and `generic_vfi`).
++++
+
+Let's compare speed.
 
 ```{code-cell} ipython3
 model = create_js_model()
@@ -584,27 +520,36 @@ v_star_0, σ_star_0 = vfi(model)
 bellman_operator = lambda v: T(v, model)
 get_greedy_function = lambda v: get_greedy(v, model)
 v_zero = jnp.zeros_like(w_vals)
-v_star_1, σ_star_1 = generic_vfi(
+
+# Time the non-compiled version
+start_time = time.time()
+v_star, σ_star = generic_vfi(
     bellman_operator, get_greedy_function, v_zero
 )
+jax.block_until_ready(v_star)  # Wait for computation to complete
+non_compiled_time = time.time() - start_time
+print(f"Non-compiled generic VFI time: {non_compiled_time:.4f} seconds")
 
-correct = jnp.allclose(v_star_0, v_star_1) and jnp.allclose(σ_star_0, σ_star_1)
-print(f"Success = {correct}")
-```
-
-Let's also test this set up with the risk sensitive model (comparing the output of `vfi_rs` and `generic_vfi`).
-
-```{code-cell} ipython3
-model = create_risk_sensitive_js_model()
-n, w_vals, P, β, c, θ = model_rs
-v_star_0, σ_star_0 = vfi_rs(model)
-bellman_operator = lambda v: T_rs(v, model)
-get_greedy_function = lambda v: get_greedy_rs(v, model)
-v_zero = jnp.zeros_like(w_vals)
-v_star_1, σ_star_1 = generic_vfi(
+# Time the compiled version (first run includes compilation time)
+start_time = time.time()
+v_star_compiled, σ_star_compiled = compiled_generic_vfi(
     bellman_operator, get_greedy_function, v_zero
 )
+jax.block_until_ready(v_star_compiled)  # Wait for computation to complete
+compiled_time_with_compile = time.time() - start_time
+print(f"Compiled generic VFI time (with compilation): "
+      f"{compiled_time_with_compile:.4f} seconds")
 
-correct = jnp.allclose(v_star_0, v_star_1) and jnp.allclose(σ_star_0, σ_star_1)
-print(f"Success = {correct}")
+# Time the compiled version again (now pre-compiled)
+start_time = time.time()
+v_star_compiled, σ_star_compiled = compiled_generic_vfi(
+    bellman_operator, get_greedy_function, v_zero
+)
+jax.block_until_ready(v_star_compiled)  # Wait for computation to complete
+compiled_time = time.time() - start_time
+print(f"Compiled generic VFI time (pre-compiled): {compiled_time:.4f} seconds")
+
+print(f"Speedup vs non-compiled: {non_compiled_time / compiled_time:.2f}x")
+overhead = compiled_time_with_compile - compiled_time
+print(f"Compilation overhead: {overhead:.4f} seconds")
 ```
