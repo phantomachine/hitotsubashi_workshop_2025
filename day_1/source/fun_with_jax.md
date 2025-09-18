@@ -196,3 +196,7 @@ f_jax = jax.jit(f)
 ```python
 %time f_jax(x_jax).block_until_ready()
 ```
+
+```python
+
+```
