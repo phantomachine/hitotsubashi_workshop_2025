@@ -4,7 +4,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.16.2
+    jupytext_version: 1.17.3
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -401,3 +401,7 @@ plt.show()
 Not surprisingly, the multilayer neural network does a much better job of fitting the data.
 
 In a [a follow-up lecture](https://jax.quantecon.org/jax_nn.html), we will try to achieve the same fit using pure JAX, rather than relying on the Keras front-end.
+
+```{code-cell} ipython3
+
+```
